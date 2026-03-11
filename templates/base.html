@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coolaire | Fleet Management</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --sidebar-dark: #121214;
+            --sidebar-hover: #1c1c1f;
+            --accent-blue: #4E73DF;
+            --bg-body: #F8F9FC;
+            /* Gradient Colors for Dashboard Boxes */
+            --grad-blue: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            --grad-green: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+            --grad-orange: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%);
+            --grad-red: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: #2D2D2D;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- LOGIN PAGE STYLES --- */
+        .login-body { background: #fff !important; height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .login-body #sidebar { display: none !important; }
+        .login-body #main { margin-left: 0 !important; width: 100%; padding: 0 !important; }
+
+        /* --- SIDEBAR STYLES --- */
+        #sidebar {
+            width: 260px; height: 100vh; position: fixed;
+            background: var(--sidebar-dark); color: #fff; z-index: 1000;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar-brand {
+            padding: 35px 25px; font-weight: 700; font-size: 1.4rem; color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center;
+        }
+
+        .nav-link-custom {
+            padding: 12px 15px; display: flex; align-items: center;
+            text-decoration: none !important; color: rgba(255,255,255,0.6); transition: 0.2s;
+            border-left: 4px solid transparent;
+            margin: 4px 10px; border-radius: 8px;
+        }
+        .nav-link-custom:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link-custom.active {
+            background: var(--sidebar-hover);
+            color: #fff !important;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        /* Advanced Colored Icons */
+        .nav-icon-box {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 12px; background: rgba(255,255,255,0.05);
+            transition: 0.3s;
+        }
+        .nav-icon-box i { font-size: 20px; }
+
+        /* Color Logic for Sidebar Icons */
+        .ic-blue { color: #4E73DF; }
+        .ic-green { color: #1cc88a; }
+        .ic-orange { color: #f6c23e; }
+        .ic-cyan { color: #36b9cc; }
+        .ic-red { color: #e74a3b; }
+
+        .active .nav-icon-box { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+
+        /* --- CONTENT AREA --- */
+        #main { margin-left: 260px; padding: 40px; min-height: 100vh; transition: 0.3s; }
+
+        /* --- CLICKABLE KPI BOXES --- */
+        .kpi-link { text-decoration: none !important; color: inherit !important; display: block; }
+        .kpi-box {
+            border: none; border-radius: 15px; padding: 25px; color: #fff;
+            position: relative; overflow: hidden; transition: 0.3s ease;
+            cursor: pointer;
+        }
+        .kpi-box:hover { transform: translateY(-5px); filter: brightness(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        .kpi-box i { position: absolute; right: 10px; bottom: 10px; font-size: 50px; opacity: 0.2; }
+
+        .bg-blue { background: var(--grad-blue); }
+        .bg-green { background: var(--grad-green); }
+        .bg-orange { background: var(--grad-orange); }
+        .bg-red { background: var(--grad-red); }
+
+        @media (max-width: 992px) {
+            #sidebar { margin-left: -260px; }
+            #main { margin-left: 0; }
+        }
+    </style>
+</head>
+<body class="{% if request.path == '/login' %}login-body{% endif %}">
+
+    {% if current_user.is_authenticated and request.path != '/login' %}
+    <nav id="sidebar">
+        <div class="sidebar-brand">
+            <i class="material-icons text-primary me-2" style="font-size: 30px;">ac_unit</i>
+            <span style="letter-spacing: 1px;">COOLAIRE</span>
+        </div>
+
+        <div class="mt-3">
+            {% if current_user.is_admin %}
+            <a href="/dashboard" class="nav-link-custom {{ 'active' if request.path == '/dashboard' }}">
+                <div class="nav-icon-box"><i class="material-icons ic-blue">dashboard</i></div> Overview
+            </a>
+
+            <a href="/daily_logs" class="nav-link-custom {{ 'active' if request.path == '/daily_logs' }}">
+                <div class="nav-icon-box"><i class="material-icons ic-cyan">assignment</i></div> Daily Log
+            </a>
+
+            <a href="/analytics" class="nav-link-custom {{ 'active' if request.path.startswith('/analytics') }}">
+                <div class="nav-icon-box"><i class="material-icons ic-green">bar_chart</i></div> Analytics
+            </a>
+
+            <a href="/history" class="nav-link-custom {{ 'active' if request.path.startswith('/history') }}">
+                <div class="nav-icon-box"><i class="material-icons ic-orange">receipt_long</i></div> Audit History
+            </a>
+
+            <a href="/manage_users" class="nav-link-custom {{ 'active' if request.path == '/manage_users' }}">
+                <div class="nav-icon-box"><i class="material-icons ic-red">group</i></div> Team Management
+            </a>
+
+            <hr class="mx-3 opacity-25">
+            {% endif %}
+
+            <a href="/" class="nav-link-custom {{ 'active' if request.path == '/' }}">
+                <div class="nav-icon-box"><i class="material-icons ic-blue">add_task</i></div> Submit Log Entry
+            </a>
+
+            <div style="position: absolute; bottom: 30px; width: 100%;">
+                <a href="/logout" class="nav-link-custom text-danger">
+                    <div class="nav-icon-box"><i class="material-icons ic-red">logout</i></div> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div id="main">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} mb-4 shadow-sm border-0" style="border-radius: 12px;">
+                        <i class="material-icons align-middle me-2">{% if category == 'success' %}check_circle{% else %}error{% endif %}</i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

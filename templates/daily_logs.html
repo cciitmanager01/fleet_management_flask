@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<!-- Header Section -->
+<div class="row align-items-center mb-5">
+    <div class="col">
+        <h2 class="fw-bold mb-0">Daily Activity Feed</h2>
+        <p class="text-muted">Live odometer submissions for {{ today.strftime('%B %d, %Y') }}</p>
+    </div>
+    <div class="col-auto">
+        <!-- Today's Total Box -->
+        <div class="card border-0 shadow-sm px-4 py-3" style="background: var(--grad-blue); color: white; border-radius: 15px;">
+            <small class="text-uppercase opacity-75 fw-bold" style="font-size: 10px; letter-spacing: 1px;">Fleet Distance Today</small>
+            <h3 class="fw-bold mb-0">{{ "{:,}".format(today_total_km) }} <span class="fs-6 fw-normal">km</span></h3>
+        </div>
+    </div>
+</div>
+
+<!-- Logs Table -->
+<div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 15px;">
+    <div class="card-header bg-white border-bottom p-4">
+        <h5 class="fw-bold mb-0 text-dark">
+            <i class="material-icons align-middle me-2 text-primary">analytics</i>Today's Log Entries
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-muted small fw-bold">UNIT ID (PLATE)</th>
+                        <th class="text-muted small fw-bold">DEPARTMENT</th>
+                        <th class="text-muted small fw-bold">DRIVER</th>
+                        <th class="text-muted small fw-bold text-center">ODOMETER</th>
+                        <th class="text-muted small fw-bold text-center">TRIP DISTANCE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td class="ps-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary-light text-primary rounded p-2 me-3" style="background: #eef2ff;">
+                                    <i class="material-icons" style="font-size: 20px;">local_shipping</i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ log.vehicle.plate_number if log.vehicle else 'Deleted Unit' }}</div>
+                                    <div class="text-muted small">ID: #{{ log.id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border px-3 py-2">{{ log.vehicle.department if log.vehicle else 'N/A' }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ log.driver_name }}</div>
+                        </td>
+                        <td class="text-center fw-bold">
+                            {{ "{:,}".format(log.odometer) }} km
+                        </td>
+                        <td class="text-center">
+                            {% if log.distance and log.distance > 0 %}
+                            <span class="text-success fw-bold">
+                                <i class="material-icons align-middle" style="font-size: 16px;">add</i>
+                                {{ "{:,}".format(log.distance) }} km
+                            </span>
+                            {% else %}
+                            <span class="text-muted small italic">Initial/Reset Reading</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <!-- Empty State -->
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="py-4">
+                                <i class="material-icons text-muted mb-3" style="font-size: 64px;">history_toggle_off</i>
+                                <h5 class="text-muted fw-bold">No submissions yet for today.</h5>
+                                <p class="text-muted small">New logs will appear here as soon as drivers submit their readings.</p>
+                                <a href="/" class="btn btn-primary btn-sm px-4 mt-2 shadow-sm" style="border-radius: 8px;">Go to Entry Form</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

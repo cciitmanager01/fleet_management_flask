@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col">
+        <h2 class="fw-bold mb-0">Fleet Analytics</h2>
+        <p class="text-muted">Report for: <strong>{{ start_date }}</strong> to <strong>{{ end_date }}</strong></p>
+    </div>
+
+    <!-- Filter Controls -->
+    <div class="col-auto">
+        <div class="btn-group shadow-sm mb-2">
+            <a href="/analytics?period=daily" class="btn btn-white bg-white border {{ 'active fw-bold' if period == 'daily' }}">Daily</a>
+            <a href="/analytics?period=weekly" class="btn btn-white bg-white border {{ 'active fw-bold' if period == 'weekly' }}">Weekly</a>
+            <a href="/analytics?period=monthly" class="btn btn-white bg-white border {{ 'active fw-bold' if period == 'monthly' }}">Monthly</a>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Date Range Form -->
+<div class="card border-0 shadow-sm mb-5 p-4 bg-light">
+    <form action="/analytics" method="GET" class="row g-3 align-items-end">
+        <input type="hidden" name="period" value="custom">
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">START DATE</label>
+            <input type="date" name="start_date" class="form-control" value="{{ start_date }}" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">END DATE</label>
+            <input type="date" name="end_date" class="form-control" value="{{ end_date }}" required>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100 fw-bold">Generate Custom Report</button>
+        </div>
+    </form>
+</div>
+
+<!-- Colored KPI Summary Boxes -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="kpi-box bg-blue">
+            <h6 class="text-uppercase opacity-75 small fw-bold">Total Fleet Distance</h6>
+            <h2 class="fw-bold mb-0">{{ "{:,}".format(total_km) }} km</h2>
+            <i class="material-icons">route</i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-box bg-green">
+            <h6 class="text-uppercase opacity-75 small fw-bold">Number of Trips</h6>
+            <h2 class="fw-bold mb-0">{{ total_trips }}</h2>
+            <i class="material-icons">forklift</i>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-box bg-orange">
+            <h6 class="text-uppercase opacity-75 small fw-bold">Avg. KM per Trip</h6>
+            <h2 class="fw-bold mb-0">{{ "{:,.2f}".format(fleet_avg) }}</h2>
+            <i class="material-icons">speed</i>
+        </div>
+    </div>
+</div>
+
+<!-- Breakdown Table -->
+<div class="card border-0 shadow-sm overflow-hidden">
+    <div class="card-header bg-white p-4 border-bottom">
+        <h5 class="fw-bold mb-0">Vehicle Efficiency Breakdown</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 text-start">UNIT ID</th>
+                        <th>DEPARTMENT</th>
+                        <th>TOTAL TRIPS</th>
+                        <th>DISTANCE</th>
+                        <th>AVG. KM/TRIP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in stats %}
+                    <tr>
+                        <td class="ps-4 text-start"><strong>{{ s.plate_number }}</strong></td>
+                        <td><span class="badge bg-light text-dark border">{{ s.department }}</span></td>
+                        <td class="fw-bold">{{ s.total_trips }}</td>
+                        <td class="text-primary fw-bold">{{ "{:,}".format(s.total_km) }} km</td>
+                        <td>
+                            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2" style="background: #eef2ff;">
+                                {{ "{:,.1f}".format(s.avg_km) }} km/trip
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">No data found for this selection.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

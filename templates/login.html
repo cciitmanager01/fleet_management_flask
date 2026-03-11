@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid p-0 h-100">
+    <div class="row g-0 h-100">
+        <!-- Image Side (Refrigerated Van Visual) -->
+        <div class="col-md-7 d-none d-md-block">
+            <div style="background: url('https://images.unsplash.com/photo-1586191582151-f73773dec072?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80') center/cover no-repeat; height: 100vh; width: 100%;">
+                <div style="background: linear-gradient(to right, rgba(18, 18, 20, 0.85), rgba(18, 18, 20, 0.2)); height: 100%; display: flex; align-items: center; padding: 60px;">
+                    <div class="text-white">
+                        <div class="d-flex align-items-center mb-4">
+                            <i class="material-icons me-3" style="font-size: 50px; color: #4E73DF;">ac_unit</i>
+                            <h1 class="display-5 fw-bold mb-0">Coolaire</h1>
+                        </div>
+                        <h2 class="display-6 fw-bold">Fleet Management System</h2>
+                        <p class="fs-5 opacity-75 mt-3" style="max-width: 500px;">
+                            Powering the Cold Chain. Real-time mileage tracking and maintenance for our refrigerated fleet.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Side -->
+        <div class="col-md-5 d-flex align-items-center justify-content-center p-5 bg-white">
+            <div style="width: 100%; max-width: 380px;">
+                <div class="text-center mb-5 d-md-none">
+                     <i class="material-icons text-primary" style="font-size: 48px;">ac_unit</i>
+                     <h3 class="fw-bold">Coolaire</h3>
+                </div>
+
+                <h2 class="fw-bold mb-2 text-dark">Welcome Back</h2>
+                <p class="text-muted mb-4">Please enter your credentials to access the fleet portal.</p>
+
+                <!-- FIXED: Red alert removed. Replaced with subtle Blue/Gray Info alert -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-primary border-0 small shadow-sm mb-4 d-flex align-items-center" style="background-color: #eef2ff; color: #4E73DF;">
+                    <i class="material-icons me-2 fs-6">info</i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">USERNAME</label>
+                        <div class="input-group custom-input-group">
+                            <span class="input-group-text bg-light border-0"><i class="material-icons fs-6 text-muted">person</i></span>
+                            <input type="text" name="username" class="form-control border-0 bg-light" placeholder="Username" required autofocus>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted">PASSWORD</label>
+                        <div class="input-group custom-input-group">
+                            <span class="input-group-text bg-light border-0"><i class="material-icons fs-6 text-muted">lock</i></span>
+                            <input type="password" name="password" class="form-control border-0 bg-light" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 shadow fw-bold py-3" style="border-radius: 12px; background: #4E73DF; border: none;">
+                        Authorize Sign In
+                    </button>
+                </form>
+
+                <div class="mt-5 text-center">
+                    <p class="text-muted small">© 2025 Coolaire Consolidated, Inc.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 1. FIXED: standardized font size to prevent "jumping" when clicking */
+    .form-control {
+        font-size: 16px !important; /* Force 16px to prevent mobile zooming and shifting */
+        padding: 12px 15px;
+        height: 50px;
+        transition: none !important; /* Remove animation that causes font-size feel changes */
+    }
+
+    .form-control:focus {
+        font-size: 16px !important;
+        background-color: #f0f2f5 !important;
+        box-shadow: none;
+    }
+
+    /* 2. Styling for cleaner inputs */
+    .custom-input-group {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #f0f2f5;
+    }
+
+    .input-group-text {
+        border-radius: 0 !important;
+    }
+
+    .alert {
+        border-radius: 12px;
+    }
+
+    /* 3. Ensure full screen height */
+    html, body { height: 100%; margin: 0; }
+</style>
+{% endblock %}
