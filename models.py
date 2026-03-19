@@ -30,11 +30,21 @@ class Vehicle(db.Model):
     model = db.Column(db.String(255))
     logs = db.relationship('MileageLog', backref='vehicle', lazy=True)
 
+# models.py updates
+class Driver(db.Model):
+    __tablename__ = "drivers"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    employee_id = db.Column(db.String(50), unique=True) # Optional: for company ID
+    is_active = db.Column(db.Boolean, default=True)
+    logs = db.relationship('MileageLog', backref='driver_rel', lazy=True)
+
 class MileageLog(db.Model):
     __tablename__ = "mileage_logs"
     id = db.Column(db.Integer, primary_key=True)
     vehicle_id = db.Column(db.Integer, db.ForeignKey("vehicles.id"), nullable=False)
-    driver_name = db.Column(db.String(255))
+    # Changed from driver_name (String) to driver_id (ForeignKey)
+    driver_id = db.Column(db.Integer, db.ForeignKey("drivers.id"), nullable=False)
     odometer = db.Column(db.Integer, nullable=False)
-    distance = db.Column(db.Integer, default=0) # Automatically calculated
+    distance = db.Column(db.Integer, default=0)
     date = db.Column(db.Date, nullable=False)

@@ -7,6 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import func
+from models import db, Vehicle, MileageLog, User, Role, Driver
+
 from datetime import datetime # Add this to your imports
 
 # --- CONFIG ---
@@ -110,41 +112,97 @@ def logout():
 
 # --- CORE ROUTES ---
 
+# Add Driver to your imports
+from models import db, Vehicle, MileageLog, User, Role, Driver
+
+
+# --- NEW DRIVER MANAGEMENT ROUTES ---
+
+@app.route('/manage_drivers')
+@login_required
+@admin_only
+def manage_drivers():
+    drivers = Driver.query.all()
+    return render_template('manage_drivers.html', drivers=drivers)
+
+
+@app.route('/add_driver', methods=['POST'])
+@login_required
+@admin_only
+def add_driver():
+    name = request.form.get('name')
+    emp_id = request.form.get('employee_id')
+    new_driver = Driver(name=name, employee_id=emp_id)
+    db.session.add(new_driver)
+    db.session.commit()
+    flash(f"Driver {name} added successfully!", "success")
+    return redirect(url_for('manage_drivers'))
+
+
+@app.route('/edit_driver/<int:id>', methods=['POST'])
+@login_required
+@admin_only
+def edit_driver(id):
+    driver = Driver.query.get_or_404(id)
+    driver.name = request.form.get('name')
+    driver.employee_id = request.form.get('employee_id')
+    db.session.commit()
+    flash("Driver updated!", "success")
+    return redirect(url_for('manage_drivers'))
+
+
+@app.route('/delete_driver/<int:id>')
+@login_required
+@admin_only
+def delete_driver(id):
+    driver = Driver.query.get_or_404(id)
+    # Check if driver has logs before deleting, or just set is_active=False
+    db.session.delete(driver)
+    db.session.commit()
+    flash("Driver removed from system.", "success")
+    return redirect(url_for('manage_drivers'))
+
+
+# --- UPDATED SUBMISSION ROUTES ---
+
 @app.route('/')
 @login_required
 def index():
-    # Only redirect to dashboard if the user is an admin
-    # AND they specifically landed on the root "/" URL.
-    if getattr(current_user, 'is_admin', False):
+    if current_user.id == "9999":
         return redirect(url_for('dashboard'))
-
     vehicles = Vehicle.query.all()
-    return render_template('index.html', vehicles=vehicles)
+    drivers = Driver.query.filter_by(is_active=True).all()  # Fetch active drivers
+    return render_template('index.html', vehicles=vehicles, drivers=drivers)
 
 
 @app.route('/submit_mileage', methods=['POST'])
 @login_required
 def submit_mileage():
     v_id = request.form.get('vehicle_id')
-    driver_name = request.form.get('driver_name')
+    d_id = request.form.get('driver_id')  # Get ID from dropdown
     try:
         new_odo = int(request.form.get('odometer'))
-        v = Vehicle.query.get(v_id)
-        last = MileageLog.query.filter_by(vehicle_id=v_id).order_by(MileageLog.id.desc()).first()
-        old_odo = last.odometer if last else new_odo
-        dist = new_odo - old_odo
-        if dist < 0:
-            flash(f"Error: Reading lower than previous ({old_odo} km)", "danger")
-        else:
-            log = MileageLog(vehicle_id=v_id, driver_name=driver_name, odometer=new_odo, distance=dist,
-                             date=date.today())
-            db.session.add(log);
-            db.session.commit()
-            flash(f"✅ Success! {dist} km logged for {v.plate_number}", "success")
-    except:
-        flash("Invalid Entry.", "danger")
-    return redirect(url_for('daily_logs') if getattr(current_user, 'is_admin', False) else url_for('index'))
+        last_log = MileageLog.query.filter_by(vehicle_id=v_id).order_by(MileageLog.id.desc()).first()
 
+        old_odo = last_log.odometer if last_log else new_odo
+        distance = new_odo - old_odo
+
+        if distance < 0:
+            flash(f"Error: Reading lower than previous ({old_odo})", "danger")
+        else:
+            log = MileageLog(
+                vehicle_id=v_id,
+                driver_id=d_id,  # Link to the Driver ID
+                odometer=new_odo,
+                distance=distance,
+                date=date.today()
+            )
+            db.session.add(log)
+            db.session.commit()
+            flash(f"Success! Traveled {distance} km", "success")
+    except Exception as e:
+        flash(f"Invalid Input: {str(e)}", "danger")
+    return redirect(url_for('index'))
 
 # --- NEW: THE DAILY LOGS ROUTE (Fixed) ---
 @app.route('/daily_logs')
