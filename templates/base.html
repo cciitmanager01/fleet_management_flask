@@ -110,7 +110,7 @@
     <nav id="sidebar">
         <div class="sidebar-brand">
             <i class="material-icons text-primary me-2" style="font-size: 30px;">ac_unit</i>
-            <span style="letter-spacing: 1px;">COOLAIRE</span>
+            <span style="letter-spacing: 1px;">FLEET-MS</span>
         </div>
 
         <div class="mt-3">
@@ -133,6 +133,10 @@
 
             <a href="/manage_users" class="nav-link-custom {{ 'active' if request.path == '/manage_users' }}">
                 <div class="nav-icon-box"><i class="material-icons ic-red">group</i></div> Team Management
+            </a>
+            <!-- Inside sidebar div in base.html -->
+            <a href="/manage_drivers" class="nav-link-custom {{ 'active' if request.path == '/manage_drivers' }}">
+             <div class="nav-icon-box"><i class="material-icons ic-orange">person</i></div> Drivers
             </a>
 
             <hr class="mx-3 opacity-25">
